@@ -7,14 +7,13 @@ import { supabase } from '../supabase'
 export default function Analysis() {
 
     
-    const [loading, setLoading] = useState(false)
     const [detections, setDetections] = useState([])
     const [currentBalls, setCurrentBalls] = useState([])
     const [hoopDetections, setHoopDetections] = useState([])
      const [analysisComplete, setAnalysisComplete] = useState(false)
      const [finalShots, setFinalShots] = useState([])
      const hoopDetectionsRef = useRef([])
-     const [analyzing, setAnalyzing] = useState(false)
+     const [analyzing, setAnalyzing] = useState(true)
      const [progress, setProgress] = useState(0)
 
     const location = useLocation()
@@ -23,10 +22,8 @@ export default function Analysis() {
     const videoUrl = useMemo(() => {
         return file ? URL.createObjectURL(file) : null
     }, [file])
-    const hoopPosition = location.state?.hoopPosition
     const videoRef = useRef(null)
     const canvasRef = useRef(null)
-    const lastDetectionTime = useRef(0)
     const detectionsRef = useRef([])
 
 
@@ -73,20 +70,11 @@ export default function Analysis() {
         console.log('no shots detected, session not saved')
     }
 
-    console.log('total time:', (Date.now() - startTime) / 1000, 'seconds')
-
-    console.log('analysis complete! shots:', shots)
-
     }catch(error){
          console.log('analysis error:', error)
     setAnalyzing(false)
     alert('Analysis failed. Please try again.')
     }
-
-
-
-
-
 }
 
     function getAverageHoopPosition() {
@@ -186,7 +174,6 @@ async function detectFrameAsync(element) {
             setCurrentBalls(balls)
             setDetections((prev) => [...prev, { time: element.currentTime, balls }])
             detectionsRef.current = [...detectionsRef.current, { time: element.currentTime, balls }]
-            console.log('ball found at:', element.currentTime, 'confidence:', balls[0].confidence)
         }
 
         const hoops = predictions.filter((item) => item.class === 'Hoop')
@@ -235,29 +222,27 @@ async function saveSession(shots) {
                 distance: shot.distance
             })
     }
-
-    console.log('session saved!')
 }
+
+useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+    
+    setAnalyzing(true)
+    video.onloadedmetadata = () => {
+        analyzeVideo()
+    }
+}, [])
 
    return (
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-4"
         style={{ fontFamily: "'Segoe UI', sans-serif" }}>
         
-        {!analysisComplete && (
+        {!analysisComplete && !analyzing && (
             <>
                 <p className="text-orange-500 text-sm font-bold tracking-widest uppercase">Court Vision</p>
                 <h1 className="text-3xl font-bold mt-2">Analysis</h1>
             </>
-        )}
-
-        {!analyzing && !analysisComplete && (
-            <button 
-                className="mt-6 px-8 py-3 rounded-lg font-bold text-sm tracking-wide"
-                style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)', boxShadow: '0 4px 20px rgba(249, 115, 22, 0.3)' }}
-                onClick={() => analyzeVideo()}
-            >
-                ANALYZE VIDEO
-            </button>
         )}
 
         {analyzing && (
@@ -277,16 +262,15 @@ async function saveSession(shots) {
             </div>
         )}
 
-        {!analyzing && !analysisComplete && (
-            <div className="relative w-full max-w-3xl mt-6 rounded-lg overflow-hidden px-4">
-                <video
-                    ref={videoRef}
-                    src={videoUrl}
-                    className="w-full"
-                    controls
-                />
-            </div>
-        )}
+        <div className="relative w-full max-w-3xl mt-6 rounded-lg overflow-hidden px-4" 
+    style={{ display: (!analyzing && !analysisComplete) ? 'block' : 'none' }}>
+    <video
+        ref={videoRef}
+        src={videoUrl}
+        className="w-full"
+        controls
+    />
+</div>
 
         {analysisComplete && (
             <div className="w-full max-w-3xl mt-8">
