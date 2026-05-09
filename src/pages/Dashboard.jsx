@@ -224,7 +224,13 @@ async function deleteSession(id) {
         Show Less
     </button>
 )}
-
+                <button
+                    className="mt-8 px-6 py-3 rounded-lg font-bold w-full bg-gray-900 border border-gray-700 hover:border-orange-500 transition-all flex items-center justify-center gap-2"
+                    onClick={() => navigate('/chat')}
+                >
+                    <span>💬</span>
+                    <span>Chat with AI Coach</span>
+                </button>
                 <button
                     className="mt-8 px-6 py-3 rounded-lg font-bold w-full"
                     style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}

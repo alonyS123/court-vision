@@ -8,6 +8,7 @@ import ZoneSelect from './pages/ZoneSelect'
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute'
+import Chat from './pages/Chat'
 
 function App(){
   return (
@@ -20,6 +21,7 @@ function App(){
         <Route path="/upload" element={<ProtectedRoute><Upload /></ProtectedRoute>} />
         <Route path="/zone-select" element={<ProtectedRoute><ZoneSelect /></ProtectedRoute>} />
         <Route path="/analysis" element={<ProtectedRoute><Analysis /></ProtectedRoute>} />
+        <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
     </Routes>
     </BrowserRouter>
 

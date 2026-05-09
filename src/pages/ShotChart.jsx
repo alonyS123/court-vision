@@ -130,15 +130,46 @@ export default function ShotChart({ shots, zone }) {
                     <p className="text-gray-700 text-sm">No shots detected</p>
                 )}
                 {shots.map((shot, index) => (
-                    <div key={index} className="flex items-center py-3 border-b border-gray-900">
-                        <div className={`w-2 h-2 rounded-full mr-4 ${shot.made ? 'bg-green-500' : 'bg-red-500'}`} />
-                        <span className="text-gray-500 text-sm w-20">Shot {index + 1}</span>
-                        <span className="text-gray-600 text-sm w-20">{shot.time.toFixed(1)}s</span>
-                        <span className={`text-sm font-bold ${shot.made ? 'text-green-500' : 'text-red-500'}`}>
-                            {shot.made ? 'Made' : 'Missed'}
-                        </span>
-                    </div>
-                ))}
+    <div key={index} className="py-3 border-b border-gray-900">
+        <div className="flex items-center">
+            <div className={`w-2 h-2 rounded-full mr-4 ${shot.made ? 'bg-green-500' : 'bg-red-500'}`} />
+            <span className="text-gray-500 text-sm w-20">Shot {index + 1}</span>
+            <span className="text-gray-600 text-sm w-20">{shot.time.toFixed(1)}s</span>
+            <span className={`text-sm font-bold ${shot.made ? 'text-green-500' : 'text-red-500'}`}>
+                {shot.made ? 'Made' : 'Missed'}
+            </span>
+        </div>
+        {shot.arc && (
+    <div className="flex gap-4 mt-2 ml-6">
+        <span className="text-gray-600 text-xs">Arc <span className="text-white">{Math.round(shot.arc.releaseAngle)}°</span></span>
+        <span className="text-gray-600 text-xs">Entry <span className={shot.arc.entryAngle >= 45 && shot.arc.entryAngle <= 52 ? 'text-green-500' : 'text-yellow-500'}>{Math.round(shot.arc.entryAngle)}°</span></span>
+    </div>
+)}
+     {shot.form && (
+    <div className="flex flex-wrap gap-4 mt-1 ml-6">
+        {shot.form.setPointElbowAngle !== null && (
+            <span className="text-gray-600 text-xs">
+                Set-point <span className={shot.form.setPointElbowAngle >= 70 && shot.form.setPointElbowAngle <= 100 ? 'text-green-500' : 'text-yellow-500'}>
+                    {shot.form.setPointElbowAngle}°
+                </span>
+            </span>
+        )}
+        <span className="text-gray-600 text-xs">
+            Release <span className={shot.form.releaseElbowAngle >= 150 && shot.form.releaseElbowAngle <= 180 ? 'text-green-500' : 'text-yellow-500'}>
+                {shot.form.releaseElbowAngle}°
+            </span>
+        </span>
+        {shot.form.kneeBend !== null && (
+            <span className="text-gray-600 text-xs">
+                Knee <span className={shot.form.kneeBend >= 110 && shot.form.kneeBend <= 130 ? 'text-green-500' : 'text-yellow-500'}>
+                    {shot.form.kneeBend}°
+                </span>
+            </span>
+        )}
+    </div>
+)}
+    </div>
+))}
             </div>
 
             {/* Back button */}
