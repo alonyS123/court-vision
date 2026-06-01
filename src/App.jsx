@@ -8,7 +8,7 @@ import ZoneSelect from './pages/ZoneSelect'
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute'
-import Chat from './pages/chat'
+import Chat from './pages/Chat'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 
 function App(){
