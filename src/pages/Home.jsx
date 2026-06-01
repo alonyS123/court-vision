@@ -73,6 +73,30 @@ export default function Home() {
                 </div>
             </div>
 
+            {/* Hero Demo Video */}
+            <div className="relative z-10 max-w-6xl mx-auto px-6 md:px-8 pb-20">
+                <div
+                    className="relative rounded-2xl overflow-hidden"
+                    style={{
+                        border: '1px solid rgba(249, 115, 22, 0.25)',
+                        boxShadow: '0 0 80px rgba(249, 115, 22, 0.12), 0 0 0 1px rgba(249, 115, 22, 0.08)'
+                    }}
+                >
+                    <video
+                        autoPlay
+                        muted
+                        loop
+                        playsInline
+                        className="w-full block"
+                    >
+                        <source
+                            src="https://ermwkfaakpzliqklpuxl.supabase.co/storage/v1/object/public/demo-videos/home-demo.mp4"
+                            type="video/mp4"
+                        />
+                    </video>
+                </div>
+            </div>
+
             {/* Trust strip */}
             <div className="relative z-10 border-y border-gray-900">
                 <div className="max-w-6xl mx-auto px-6 md:px-8 py-8 grid grid-cols-2 md:grid-cols-4 gap-6">
