@@ -1,4 +1,4 @@
-import { useLocation } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
 import { useState, useEffect, useRef, useMemo } from 'react'
 import axios from 'axios'
 import ShotChart from './ShotChart'
@@ -36,6 +36,8 @@ export default function Analysis() {
      const hoopDetectionsRef = useRef([])
      const [analyzing, setAnalyzing] = useState(true)
      const [progress, setProgress] = useState(0)
+     const [noShotsDetected, setNoShotsDetected] = useState(false)
+     const [error, setError] = useState(null)
 
     const location = useLocation()
     const file = location.state?.file
@@ -48,6 +50,7 @@ export default function Analysis() {
     const detectionsRef = useRef([])
     const poseLandmarkerRef = useRef(null)
     const poseDetectionsRef = useRef([])
+    const navigate = useNavigate()
 
 
     async function analyzeVideo() {
@@ -104,21 +107,22 @@ export default function Analysis() {
         const form = calculateFormForShot(shot, poseDetectionsRef.current)
         return { ...shot, form }
     })
+
     setFinalShots(shotsWithForm)
-    setAnalysisComplete(true)
     setAnalyzing(false)
     setProgress(100)
     if (shotsWithForm.length > 0) {
         saveSession(shotsWithForm)
+        setAnalysisComplete(true)
     } else {
-        console.log('no shots detected, session not saved')
+        setNoShotsDetected(true)
     }
 
     }catch(error){
-         console.log('analysis error:', error)
+    console.log('analysis error:', error)
     setAnalyzing(false)
-    alert('Analysis failed. Please try again.')
-    }
+    setError('Something went wrong while analyzing your video. Please check your internet connection and try again.')
+}
 }
 
     function getAverageHoopPosition() {
@@ -541,7 +545,7 @@ useEffect(() => {
     <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-4"
         style={{ fontFamily: "'Segoe UI', sans-serif" }}>
         
-        {!analysisComplete && !analyzing && (
+        {!analysisComplete && !analyzing && !noShotsDetected && !error && (
             <>
                 <p className="text-orange-500 text-sm font-bold tracking-widest uppercase">Court Vision</p>
                 <h1 className="text-3xl font-bold mt-2">Analysis</h1>
@@ -566,7 +570,7 @@ useEffect(() => {
         )}
 
         <div className="relative w-full max-w-3xl mt-6 rounded-lg overflow-hidden px-4" 
-    style={{ display: (!analyzing && !analysisComplete) ? 'block' : 'none' }}>
+    style={{ display: (!analyzing && !analysisComplete && !noShotsDetected && !error) ? 'block' : 'none' }}>
     <video
         ref={videoRef}
         src={videoUrl}
@@ -574,7 +578,45 @@ useEffect(() => {
         controls
     />
 </div>
-
+        {noShotsDetected && (
+    <div className="text-center max-w-md">
+        <p className="text-orange-500 text-sm font-bold tracking-widest uppercase">Court Vision</p>
+        <h1 className="text-3xl font-bold mt-2">No Shots Detected</h1>
+        <p className="text-gray-400 text-sm mt-4">
+            We couldn't find any shots in your video. This usually happens when:
+        </p>
+        <ul className="text-gray-500 text-sm mt-4 space-y-2 text-left mx-auto inline-block">
+            <li>• The hoop isn't clearly visible</li>
+            <li>• The video is too dark or blurry</li>
+            <li>• The ball is hard to see against the background</li>
+            <li>• The shooter is too far from the camera</li>
+        </ul>
+        <p className="text-gray-400 text-sm mt-6">
+            Try filming from a closer angle in good lighting with the hoop fully in frame.
+        </p>
+        <button
+            onClick={() => navigate('/upload')}
+            className="mt-8 px-8 py-3 rounded-lg font-bold text-sm tracking-wide"
+            style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}
+        >
+            TRY ANOTHER VIDEO
+        </button>
+    </div>
+)}
+        {error && (
+    <div className="text-center max-w-md">
+        <p className="text-red-500 text-sm font-bold tracking-widest uppercase">Analysis Failed</p>
+        <h1 className="text-3xl font-bold mt-2">Something Went Wrong</h1>
+        <p className="text-gray-400 text-sm mt-4">{error}</p>
+        <button
+            onClick={() => navigate('/upload')}
+            className="mt-8 px-8 py-3 rounded-lg font-bold text-sm tracking-wide"
+            style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}
+        >
+            TRY AGAIN
+        </button>
+    </div>
+)}
         {analysisComplete && (
             <div className="w-full max-w-3xl mt-8">
                 <ShotChart shots={finalShots} zone={zone} />

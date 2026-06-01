@@ -8,7 +8,8 @@ import ZoneSelect from './pages/ZoneSelect'
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute'
-import Chat from './pages/Chat'
+import Chat from './pages/chat'
+import PrivacyPolicy from './pages/PrivacyPolicy'
 
 function App(){
   return (
@@ -22,6 +23,7 @@ function App(){
         <Route path="/zone-select" element={<ProtectedRoute><ZoneSelect /></ProtectedRoute>} />
         <Route path="/analysis" element={<ProtectedRoute><Analysis /></ProtectedRoute>} />
         <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
+        <Route path="/privacy-policy" element={<PrivacyPolicy />} />
     </Routes>
     </BrowserRouter>
 

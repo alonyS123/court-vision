@@ -9,6 +9,8 @@ export default function Chat() {
     const [loading, setLoading] = useState(false)
     const [sessionContext, setSessionContext] = useState(null)
     const navigate = useNavigate()
+    const [showClearConfirm, setShowClearConfirm] = useState(false)
+    const [loadingHistory, setLoadingHistory] = useState(true)
 
     const messagesEndRef = useRef(null)
 
@@ -73,12 +75,10 @@ useEffect(() => {
 
         if (error) {
             console.log('error loading chat history:', error.message)
-            return
-        }
-
-        if (data && data.length > 0) {
+        } else if (data && data.length > 0) {
             setMessages(data)
         }
+        setLoadingHistory(false)
     }
     loadChatHistory()
 }, [])
@@ -147,20 +147,67 @@ await supabase.from('chat_messages').insert({
                     <p className="text-orange-500 text-xs font-bold tracking-widest uppercase">Court Vision</p>
                     <h1 className="text-lg font-bold">AI Coach</h1>
                 </div>
-                <div className="w-12" />
+                <button
+                onClick={() => setShowClearConfirm(true)}
+                className="text-gray-400 hover:text-red-500 text-sm transition-all"
+            >
+                Clear
+            </button>
             </div>
 
             {/* Messages */}
 <div className="flex-1 overflow-y-auto px-4 py-6 space-y-4 max-w-2xl w-full mx-auto">
-    {messages.length === 0 && (
+    {loadingHistory && (
         <div className="text-center mt-20">
-            <p className="text-4xl mb-4">🏀</p>
-            <h2 className="text-xl font-bold">Hey, I'm your AI Coach</h2>
-            <p className="text-gray-500 mt-2 text-sm px-8">
-                Ask me about your shooting form, get drill recommendations, or anything basketball-related.
-            </p>
+            <div className="inline-block w-6 h-6 border-2 border-gray-700 border-t-orange-500 rounded-full animate-spin" />
         </div>
     )}
+    {!loadingHistory && messages.length === 0 && (
+    <div className="text-center mt-20 px-4">
+        <p className="text-4xl mb-4">🏀</p>
+        <h2 className="text-xl font-bold">Hey, I'm your AI Coach</h2>
+        
+        {sessionContext && sessionContext.recentSessions?.length > 0 ? (
+            <>
+                <p className="text-gray-500 mt-2 text-sm">
+                    I've reviewed your recent sessions. Try asking:
+                </p>
+                <div className="mt-6 space-y-2 max-w-sm mx-auto">
+                    {[
+                        "How am I shooting overall?",
+                        "What should I work on?",
+                        "Compare my form on makes vs misses",
+                        "Give me a drill for my weak zone"
+                    ].map((suggestion) => (
+                        <button
+                    key={suggestion}
+                    onClick={() => {
+                        setInput(suggestion)
+                        setTimeout(() => sendMessage(), 0)
+                    }}
+                    className="w-full text-left px-4 py-3 rounded-lg bg-gray-900 border border-gray-800 hover:border-orange-500 transition-all text-sm text-gray-300"
+                >
+                    {suggestion}
+                </button>
+                    ))}
+                </div>
+            </>
+        ) : (
+            <>
+                <p className="text-gray-500 mt-2 text-sm">
+                    Upload a shooting video first so I can give you personalized feedback.
+                </p>
+                <button
+                    onClick={() => navigate('/upload')}
+                    className="mt-6 px-8 py-3 rounded-lg font-bold text-sm tracking-wide"
+                    style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}
+                >
+                    UPLOAD YOUR FIRST VIDEO
+                </button>
+            </>
+        )}
+    </div>
+)}
     {messages.map((msg, i) => (
         <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[85%] px-4 py-3 rounded-2xl text-sm ${
@@ -207,6 +254,35 @@ await supabase.from('chat_messages').insert({
                     </button>
                 </div>
             </div>
+            {showClearConfirm && (
+    <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 px-4">
+        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-2">Clear Chat History?</h2>
+            <p className="text-gray-400 text-sm mb-6">
+                This will delete all your conversations with the AI Coach. This cannot be undone.
+            </p>
+            <div className="flex gap-3">
+                <button
+                    onClick={() => setShowClearConfirm(false)}
+                    className="flex-1 px-4 py-3 rounded-lg font-bold text-sm bg-gray-800 border border-gray-700 hover:border-gray-600"
+                >
+                    Cancel
+                </button>
+                <button
+                    onClick={async () => {
+                        const { data: { user } } = await supabase.auth.getUser()
+                        await supabase.from('chat_messages').delete().eq('user_id', user.id)
+                        setMessages([])
+                        setShowClearConfirm(false)
+                    }}
+                    className="flex-1 px-4 py-3 rounded-lg font-bold text-sm bg-red-600 hover:bg-red-700"
+                >
+                    Clear
+                </button>
+            </div>
+        </div>
+    </div>
+)}
         </div>
     )
 }
