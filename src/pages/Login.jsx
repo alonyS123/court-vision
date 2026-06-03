@@ -58,9 +58,9 @@ async function handleGoogleLogin() {
 }
 
     return (
-        <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center gap-24"
+        <div className="min-h-screen bg-black text-white flex flex-col"
             style={{ fontFamily: "'Segoe UI', sans-serif" }}>
-            
+            <div className="flex-1 flex items-center justify-center">
             <div className="w-80" onKeyDown={(e) => { if (e.key === 'Enter') handleLogin() }}>
                 <p className="text-orange-500 text-sm font-bold tracking-widest uppercase mb-2 text-center">Court Vision</p>
                 <h1 className="text-3xl font-bold text-center mb-8">Welcome Back</h1>
@@ -120,6 +120,7 @@ async function handleGoogleLogin() {
                 </svg>
                 Continue with Google
             </button>
+            </div>
             </div>
             <Footer />
         </div>

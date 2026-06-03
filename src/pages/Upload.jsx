@@ -37,8 +37,9 @@ export default function Upload() {
     }
 
     return (
-        <div className="min-h-screen bg-black text-white flex flex-col items-center p-6 md:p-8"
+        <div className="min-h-screen bg-black text-white flex flex-col"
             style={{ fontFamily: "'Segoe UI', sans-serif" }}>
+            <div className="flex-1 flex flex-col items-center p-6 md:p-8">
 
             {/* Header */}
             <div className="text-center mt-8">
@@ -127,6 +128,7 @@ export default function Upload() {
                         CONTINUE →
                     </button>
                 )}
+            </div>
             </div>
             <Footer/>
         </div>

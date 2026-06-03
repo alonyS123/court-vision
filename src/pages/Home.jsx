@@ -26,12 +26,20 @@ export default function Home() {
                     </div>
                     <span className="font-bold text-lg tracking-tight">Court Vision</span>
                 </div>
-                <button
-                    onClick={() => navigate('/login')}
-                    className="px-5 py-2 rounded-lg text-sm font-bold border border-gray-700 text-gray-300 hover:border-orange-500 hover:text-white transition-all"
-                >
-                    Log In
-                </button>
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={() => navigate('/pricing')}
+                        className="px-5 py-2 rounded-lg text-sm font-bold text-gray-400 hover:text-white transition-all"
+                    >
+                        Pricing
+                    </button>
+                    <button
+                        onClick={() => navigate('/login')}
+                        className="px-5 py-2 rounded-lg text-sm font-bold border border-gray-700 text-gray-300 hover:border-orange-500 hover:text-white transition-all"
+                    >
+                        Log In
+                    </button>
+                </div>
             </nav>
 
             {/* Hero */}

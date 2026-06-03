@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
+import Footer from '../components/Footer'
 
 export default function Dashboard() {
 
@@ -68,7 +69,8 @@ async function deleteSession(id) {
 }
 
     return (
-        <div className="min-h-screen bg-black text-white p-8">
+        <div className="min-h-screen bg-black text-white flex flex-col">
+            <div className="flex-1 p-8">
             <div className="max-w-2xl mx-auto">
                 <p className="text-orange-500 text-sm font-bold tracking-widest uppercase">Court Vision</p>
                 
@@ -241,6 +243,8 @@ async function deleteSession(id) {
                 </>
 )}
             </div>
+            </div>
+        <Footer />
         </div>
     )
 }

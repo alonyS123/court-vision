@@ -10,6 +10,7 @@ import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute'
 import Chat from './pages/Chat'
 import PrivacyPolicy from './pages/PrivacyPolicy'
+import Pricing from './pages/Pricing'
 
 function App(){
   return (
@@ -24,6 +25,7 @@ function App(){
         <Route path="/analysis" element={<ProtectedRoute><Analysis /></ProtectedRoute>} />
         <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} />
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+        <Route path="/pricing" element={<Pricing />} />
     </Routes>
     </BrowserRouter>
 
