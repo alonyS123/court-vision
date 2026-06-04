@@ -2,6 +2,28 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Footer from '../components/Footer'
 
+function FaqItem({ q, a }) {
+    const [open, setOpen] = useState(false)
+    return (
+        <div className="border border-gray-800 rounded-xl overflow-hidden">
+            <button
+                onClick={() => setOpen(!open)}
+                className="w-full flex justify-between items-center px-6 py-4 text-left hover:bg-gray-900 transition-all"
+            >
+                <span className="font-bold text-sm md:text-base pr-4">{q}</span>
+                <span className="text-orange-500 flex-shrink-0 text-lg leading-none">
+                    {open ? '−' : '+'}
+                </span>
+            </button>
+            {open && (
+                <div className="px-6 pb-5 text-gray-400 text-sm leading-relaxed border-t border-gray-800 pt-4">
+                    {a}
+                </div>
+            )}
+        </div>
+    )
+}
+
 export default function Pricing() {
     const [annual, setAnnual] = useState(true)
     const navigate = useNavigate()
@@ -44,6 +66,12 @@ export default function Pricing() {
                         AI-powered shot analysis built for players who are serious about improvement.
                     </p>
                 </div>
+
+                {/* Hook line */}
+                <p className="text-center text-xl md:text-2xl font-bold text-white mb-10 -mt-4">
+                    Less than one shawarma a month.{' '}
+                    <span style={{ color: '#f97316' }}>Train like a pro every day.</span>
+                </p>
 
                 {/* Toggle */}
                 <div className="flex items-center justify-center gap-2 mb-12">
@@ -159,8 +187,41 @@ export default function Pricing() {
 
                 {/* Value anchor */}
                 <p className="text-center text-gray-600 text-sm mt-10">
-                    Less than ⅙ of a single private training session — every month.
+                    For the price of one private training session, get a year of unlimited AI coaching.
                 </p>
+
+                {/* FAQ */}
+                <div className="mt-20">
+                    <h2 className="text-2xl md:text-3xl font-bold text-center mb-10">Frequently Asked Questions</h2>
+                    <div className="space-y-2 max-w-2xl mx-auto">
+                        {[
+                            {
+                                q: 'Can I cancel anytime?',
+                                a: 'Yes. Cancel from your account settings anytime. You keep access until the end of your billing period — no penalties, no fees.'
+                            },
+                            {
+                                q: 'What counts as a "video analysis"?',
+                                a: 'Each video you upload for analysis counts as one. Free users get 2 per month. Pro users get unlimited analyses.'
+                            },
+                            {
+                                q: 'Do I need any special equipment to film my shots?',
+                                a: 'No. Any phone camera works. Film from the side at chest height, make sure the ball and hoop are both visible.'
+                            },
+                            {
+                                q: 'What does the AI Coach actually do?',
+                                a: 'The AI Coach reviews your shot data — release angle, form, accuracy — and gives you specific, personalized feedback. It\'s available 24/7 in chat. Think of it as a shooting coach in your pocket.'
+                            },
+                            {
+                                q: 'Is my data private?',
+                                a: 'Yes. Your videos and shot data are only accessible by you. We don\'t share, sell, or train on your data. See our Privacy Policy for details.'
+                            },
+                            {
+                                q: 'Do you offer refunds?',
+                                a: 'Yes — annual subscriptions come with a 7-day money-back guarantee. Monthly subscriptions can be canceled anytime to stop future charges.'
+                            },
+                        ].map(({ q, a }) => <FaqItem key={q} q={q} a={a} />)}
+                    </div>
+                </div>
             </div>
 
             <Footer />
