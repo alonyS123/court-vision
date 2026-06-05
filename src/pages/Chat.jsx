@@ -2,6 +2,9 @@ import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 import ReactMarkdown from 'react-markdown'
+import { useSubscription } from '../context/SubscriptionContext'
+
+const FREE_MESSAGE_LIMIT = 3
 
 export default function Chat() {
     const [messages, setMessages] = useState([])
@@ -11,7 +14,10 @@ export default function Chat() {
     const navigate = useNavigate()
     const [showClearConfirm, setShowClearConfirm] = useState(false)
     const [loadingHistory, setLoadingHistory] = useState(true)
+    const [sessionMessageCount, setSessionMessageCount] = useState(0)
+    const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
+    const { subscriptionStatus } = useSubscription()
     const messagesEndRef = useRef(null)
 
     useEffect(() => {
@@ -86,6 +92,13 @@ useEffect(() => {
     async function sendMessage() {
     if (!input.trim() || loading) return
 
+    if (subscriptionStatus === 'free' && sessionMessageCount >= FREE_MESSAGE_LIMIT) {
+        setShowUpgradeModal(true)
+        return
+    }
+
+    const isLastFreeMessage = subscriptionStatus === 'free' && sessionMessageCount === FREE_MESSAGE_LIMIT - 1
+
     const userMessage = { role: 'user', content: input }
     const newMessages = [...messages, userMessage]
     setMessages(newMessages)
@@ -123,6 +136,8 @@ await supabase.from('chat_messages').insert({
     role: 'assistant',
     content: aiText
 })
+        setSessionMessageCount(prev => prev + 1)
+        if (isLastFreeMessage) setShowUpgradeModal(true)
     } catch (error) {
         console.log('chat error:', error)
         setMessages([...newMessages, { role: 'assistant', content: 'Sorry, something went wrong.' }])
@@ -235,18 +250,28 @@ await supabase.from('chat_messages').insert({
 
             {/* Input */}
             <div className="border-t border-gray-900 p-4">
+                {subscriptionStatus === 'free' && sessionMessageCount >= FREE_MESSAGE_LIMIT && (
+                    <button
+                        onClick={() => setShowUpgradeModal(true)}
+                        className="w-full mb-3 py-2 rounded-lg text-xs font-bold text-center transition-all"
+                        style={{ background: 'rgba(249, 115, 22, 0.1)', color: '#f97316', border: '1px solid rgba(249, 115, 22, 0.2)' }}
+                    >
+                        Upgrade to Pro for unlimited coaching →
+                    </button>
+                )}
                 <div className="flex gap-2">
                     <input
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-                        placeholder="Ask your coach..."
-                        className="flex-1 bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-orange-500"
+                        placeholder={subscriptionStatus === 'free' && sessionMessageCount >= FREE_MESSAGE_LIMIT ? 'Upgrade to Pro for unlimited chat' : 'Ask your coach...'}
+                        disabled={subscriptionStatus === 'free' && sessionMessageCount >= FREE_MESSAGE_LIMIT}
+                        className="flex-1 bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
                     />
                     <button
                         onClick={sendMessage}
-                        disabled={!input.trim() || loading}
+                        disabled={!input.trim() || loading || (subscriptionStatus === 'free' && sessionMessageCount >= FREE_MESSAGE_LIMIT)}
                         className="px-6 py-3 rounded-lg font-bold text-sm tracking-wide disabled:opacity-50"
                         style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}
                     >
@@ -278,6 +303,31 @@ await supabase.from('chat_messages').insert({
                     className="flex-1 px-4 py-3 rounded-lg font-bold text-sm bg-red-600 hover:bg-red-700"
                 >
                     Clear
+                </button>
+            </div>
+        </div>
+    </div>
+)}
+        {showUpgradeModal && (
+    <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 px-4">
+        <div className="bg-gray-900 border border-gray-800 rounded-2xl p-6 max-w-sm w-full">
+            <h2 className="text-lg font-bold mb-2">Unlock unlimited coaching</h2>
+            <p className="text-gray-400 text-sm mb-6">
+                AI coaching chat is a Pro feature. Upgrade to unlock unlimited feedback from your AI coach.
+            </p>
+            <div className="flex gap-3">
+                <button
+                    onClick={() => setShowUpgradeModal(false)}
+                    className="flex-1 px-4 py-3 rounded-lg font-bold text-sm bg-gray-800 border border-gray-700 hover:border-gray-600"
+                >
+                    Maybe Later
+                </button>
+                <button
+                    onClick={() => navigate('/pricing')}
+                    className="flex-1 px-4 py-3 rounded-lg font-bold text-sm"
+                    style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}
+                >
+                    Upgrade →
                 </button>
             </div>
         </div>

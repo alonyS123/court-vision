@@ -9,7 +9,7 @@ export default function Dashboard() {
     const [sessions, setSessions] = useState([])
     const [loading, setLoading] = useState(true)
     const [timeFilter, setTimeFilter] = useState('all')
-    const [showAllSessions, setShowAllSessions] = useState(false)
+    const [visibleCount, setVisibleCount] = useState(5)
 
     const navigate = useNavigate()
 
@@ -186,7 +186,7 @@ async function deleteSession(id) {
                 
                         <h2 className="text-xl font-bold mt-10">Session History</h2>
 {loading && <p className="text-gray-400 mt-4">Loading...</p>}
-{(showAllSessions ? filtered : filtered.slice(0, 5)).map((session) => (
+{filtered.slice(0, visibleCount).map((session) => (
     <div key={session.id} className="bg-gray-800 p-4 rounded-lg mt-3 flex justify-between items-center">
         <div>
             <p className="font-bold">{session.zone}</p>
@@ -210,21 +210,16 @@ async function deleteSession(id) {
         </div>
     </div>
 ))}
-{filtered.length > 5 && !showAllSessions && (
-    <button 
-        onClick={() => setShowAllSessions(true)}
+{visibleCount < filtered.length && (
+    <button
+        onClick={() => setVisibleCount(c => c + 5)}
         className="mt-4 w-full py-3 rounded-lg text-sm font-bold text-gray-400 bg-gray-800 border border-gray-700 hover:text-white transition-all"
     >
-        Show All ({filtered.length} sessions)
+        Show {Math.min(5, filtered.length - visibleCount)} More
     </button>
 )}
-{showAllSessions && filtered.length > 5 && (
-    <button 
-        onClick={() => setShowAllSessions(false)}
-        className="mt-4 w-full py-3 rounded-lg text-sm font-bold text-gray-400 bg-gray-800 border border-gray-700 hover:text-white transition-all"
-    >
-        Show Less
-    </button>
+{visibleCount >= filtered.length && filtered.length > 5 && (
+    <p className="mt-4 text-center text-gray-600 text-xs">All sessions shown</p>
 )}
                 <button
                     className="mt-8 px-6 py-3 rounded-lg font-bold w-full bg-gray-900 border border-gray-700 hover:border-orange-500 transition-all flex items-center justify-center gap-2"

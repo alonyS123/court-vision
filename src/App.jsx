@@ -11,10 +11,12 @@ import ProtectedRoute from './components/ProtectedRoute'
 import Chat from './pages/Chat'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 import Pricing from './pages/Pricing'
+import { SubscriptionProvider } from './context/SubscriptionContext'
 
 function App(){
   return (
     <BrowserRouter>
+    <SubscriptionProvider>
     <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/calibration" element={<Calibration/>}/>
@@ -27,6 +29,7 @@ function App(){
         <Route path="/privacy-policy" element={<PrivacyPolicy />} />
         <Route path="/pricing" element={<Pricing />} />
     </Routes>
+    </SubscriptionProvider>
     </BrowserRouter>
 
 

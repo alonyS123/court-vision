@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Footer from '../components/Footer'
+import { supabase } from '../supabase'
+
+const CHECKOUT_MONTHLY = 'https://courtvisionapp.lemonsqueezy.com/checkout/buy/3f9f787e-d0c2-44a8-b926-dff992f3a8ae'
+const CHECKOUT_ANNUAL  = 'https://courtvisionapp.lemonsqueezy.com/checkout/buy/de81fbab-3b32-433e-93e4-7bca367acba9'
 
 function FaqItem({ q, a }) {
     const [open, setOpen] = useState(false)
@@ -26,7 +30,23 @@ function FaqItem({ q, a }) {
 
 export default function Pricing() {
     const [annual, setAnnual] = useState(true)
+    const [checkoutLoading, setCheckoutLoading] = useState(false)
     const navigate = useNavigate()
+
+    async function handleStartPro() {
+        setCheckoutLoading(true)
+        const { data: { user }, error } = await supabase.auth.getUser()
+        if (error || !user) {
+            if (error && error.name !== 'AuthSessionMissingError') {
+                console.error('Unexpected auth error:', error)
+            }
+            navigate('/login')
+            return
+        }
+        const base = annual ? CHECKOUT_ANNUAL : CHECKOUT_MONTHLY
+        const url = `${base}?checkout[email]=${encodeURIComponent(user.email)}&checkout[custom][user_id]=${encodeURIComponent(user.id)}`
+        window.location.href = url
+    }
 
     return (
         <div className="min-h-screen bg-black text-white flex flex-col"
@@ -173,14 +193,15 @@ export default function Pricing() {
                             ))}
                         </ul>
                         <button
-                            onClick={() => console.log('Start Pro clicked - Lemon Squeezy not configured yet')}
-                            className="mt-auto w-full py-3 rounded-lg font-bold text-sm tracking-wide transition-all duration-200 hover:scale-[1.02]"
+                            onClick={handleStartPro}
+                            disabled={checkoutLoading}
+                            className="mt-auto w-full py-3 rounded-lg font-bold text-sm tracking-wide transition-all duration-200 hover:scale-[1.02] disabled:opacity-70 disabled:cursor-not-allowed"
                             style={{
                                 background: 'linear-gradient(135deg, #f97316, #ea580c)',
                                 boxShadow: '0 4px 20px rgba(249, 115, 22, 0.3)'
                             }}
                         >
-                            Start Pro
+                            {checkoutLoading ? 'Loading...' : 'Start Pro'}
                         </button>
                     </div>
                 </div>
