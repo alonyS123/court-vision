@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+﻿import { useState, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 import ReactMarkdown from 'react-markdown'
@@ -17,7 +17,7 @@ export default function Chat() {
     const [sessionMessageCount, setSessionMessageCount] = useState(0)
     const [showUpgradeModal, setShowUpgradeModal] = useState(false)
 
-    const { subscriptionStatus } = useSubscription()
+    const { isPro } = useSubscription()
     const messagesEndRef = useRef(null)
 
     useEffect(() => {
@@ -92,12 +92,12 @@ useEffect(() => {
     async function sendMessage() {
     if (!input.trim() || loading) return
 
-    if (subscriptionStatus === 'free' && sessionMessageCount >= FREE_MESSAGE_LIMIT) {
+    if (!isPro && sessionMessageCount >= FREE_MESSAGE_LIMIT) {
         setShowUpgradeModal(true)
         return
     }
 
-    const isLastFreeMessage = subscriptionStatus === 'free' && sessionMessageCount === FREE_MESSAGE_LIMIT - 1
+    const isLastFreeMessage = !isPro && sessionMessageCount === FREE_MESSAGE_LIMIT - 1
 
     const userMessage = { role: 'user', content: input }
     const newMessages = [...messages, userMessage]
@@ -156,7 +156,7 @@ await supabase.from('chat_messages').insert({
                     onClick={() => navigate('/dashboard')}
                     className="text-gray-400 hover:text-white text-sm"
                 >
-                    ← Back
+                    ג† Back
                 </button>
                 <div className="text-center">
                     <p className="text-orange-500 text-xs font-bold tracking-widest uppercase">Court Vision</p>
@@ -179,7 +179,7 @@ await supabase.from('chat_messages').insert({
     )}
     {!loadingHistory && messages.length === 0 && (
     <div className="text-center mt-20 px-4">
-        <p className="text-4xl mb-4">🏀</p>
+        <p className="text-4xl mb-4">נ€</p>
         <h2 className="text-xl font-bold">Hey, I'm your AI Coach</h2>
         
         {sessionContext && sessionContext.recentSessions?.length > 0 ? (
@@ -250,13 +250,13 @@ await supabase.from('chat_messages').insert({
 
             {/* Input */}
             <div className="border-t border-gray-900 p-4">
-                {subscriptionStatus === 'free' && sessionMessageCount >= FREE_MESSAGE_LIMIT && (
+                {!isPro && sessionMessageCount >= FREE_MESSAGE_LIMIT && (
                     <button
                         onClick={() => setShowUpgradeModal(true)}
                         className="w-full mb-3 py-2 rounded-lg text-xs font-bold text-center transition-all"
                         style={{ background: 'rgba(249, 115, 22, 0.1)', color: '#f97316', border: '1px solid rgba(249, 115, 22, 0.2)' }}
                     >
-                        Upgrade to Pro for unlimited coaching →
+                        Upgrade to Pro for unlimited coaching ג†’
                     </button>
                 )}
                 <div className="flex gap-2">
@@ -265,13 +265,13 @@ await supabase.from('chat_messages').insert({
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-                        placeholder={subscriptionStatus === 'free' && sessionMessageCount >= FREE_MESSAGE_LIMIT ? 'Upgrade to Pro for unlimited chat' : 'Ask your coach...'}
-                        disabled={subscriptionStatus === 'free' && sessionMessageCount >= FREE_MESSAGE_LIMIT}
+                        placeholder={!isPro && sessionMessageCount >= FREE_MESSAGE_LIMIT ? 'Upgrade to Pro for unlimited chat' : 'Ask your coach...'}
+                        disabled={!isPro && sessionMessageCount >= FREE_MESSAGE_LIMIT}
                         className="flex-1 bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 text-sm focus:outline-none focus:border-orange-500 disabled:opacity-50 disabled:cursor-not-allowed"
                     />
                     <button
                         onClick={sendMessage}
-                        disabled={!input.trim() || loading || (subscriptionStatus === 'free' && sessionMessageCount >= FREE_MESSAGE_LIMIT)}
+                        disabled={!input.trim() || loading || (!isPro && sessionMessageCount >= FREE_MESSAGE_LIMIT)}
                         className="px-6 py-3 rounded-lg font-bold text-sm tracking-wide disabled:opacity-50"
                         style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}
                     >
@@ -327,7 +327,7 @@ await supabase.from('chat_messages').insert({
                     className="flex-1 px-4 py-3 rounded-lg font-bold text-sm"
                     style={{ background: 'linear-gradient(135deg, #f97316, #ea580c)' }}
                 >
-                    Upgrade →
+                    Upgrade ג†’
                 </button>
             </div>
         </div>

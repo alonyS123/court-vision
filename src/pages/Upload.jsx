@@ -15,12 +15,12 @@ export default function Upload() {
     const [uploadsThisMonth, setUploadsThisMonth] = useState(0)
     const [limitLoading, setLimitLoading] = useState(true)
     const navigate = useNavigate()
-    const { subscriptionStatus } = useSubscription()
+    const { isPro } = useSubscription()
 
     // Gate 1: count sessions uploaded this calendar month
     useEffect(() => {
         async function checkUploadLimit() {
-            if (subscriptionStatus !== 'free') {
+            if (isPro) {
                 setLimitLoading(false)
                 return
             }
@@ -55,7 +55,7 @@ export default function Upload() {
 
     // Shared file-apply logic — runs duration gate for free users
     async function applyFile(selected) {
-        if (subscriptionStatus === 'free') {
+        if (!isPro) {
             const duration = await getVideoDuration(selected)
             if (duration > FREE_MAX_SECONDS) {
                 setDurationError(true)
@@ -96,7 +96,7 @@ export default function Upload() {
         setLoadingDemo(false)
     }
 
-    const atUploadLimit = subscriptionStatus === 'free' && !limitLoading && uploadsThisMonth >= FREE_UPLOAD_LIMIT
+    const atUploadLimit = !isPro && !limitLoading && uploadsThisMonth >= FREE_UPLOAD_LIMIT
 
     return (
         <div className="min-h-screen bg-black text-white flex flex-col"
@@ -111,7 +111,7 @@ export default function Upload() {
             </div>
 
             {/* Gate 1: upload limit wall */}
-            {limitLoading && subscriptionStatus === 'free' ? (
+            {limitLoading && !isPro ? (
                 <div className="mt-20">
                     <div className="inline-block w-6 h-6 border-2 border-gray-700 border-t-orange-500 rounded-full animate-spin" />
                 </div>

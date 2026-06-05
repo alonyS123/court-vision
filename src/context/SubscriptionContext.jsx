@@ -4,6 +4,9 @@ import { supabase } from '../supabase'
 const SubscriptionContext = createContext({
     subscriptionStatus: 'free',
     subscriptionPlan: null,
+    subscriptionEndsAt: null,
+    customerPortalUrl: null,
+    isPro: false,
     loading: true,
     refresh: () => {}
 })
@@ -11,6 +14,8 @@ const SubscriptionContext = createContext({
 export function SubscriptionProvider({ children }) {
     const [subscriptionStatus, setSubscriptionStatus] = useState('free')
     const [subscriptionPlan, setSubscriptionPlan] = useState(null)
+    const [subscriptionEndsAt, setSubscriptionEndsAt] = useState(null)
+    const [customerPortalUrl, setCustomerPortalUrl] = useState(null)
     const [loading, setLoading] = useState(true)
 
     async function fetchProfile() {
@@ -18,21 +23,27 @@ export function SubscriptionProvider({ children }) {
         if (!user) {
             setSubscriptionStatus('free')
             setSubscriptionPlan(null)
+            setSubscriptionEndsAt(null)
+            setCustomerPortalUrl(null)
             setLoading(false)
             return
         }
         const { data, error } = await supabase
             .from('profiles')
-            .select('subscription_status, subscription_plan')
+            .select('subscription_status, subscription_plan, subscription_ends_at, customer_portal_url')
             .eq('id', user.id)
             .single()
 
         if (!error && data) {
             setSubscriptionStatus(data.subscription_status ?? 'free')
             setSubscriptionPlan(data.subscription_plan ?? null)
+            setSubscriptionEndsAt(data.subscription_ends_at ?? null)
+            setCustomerPortalUrl(data.customer_portal_url ?? null)
         } else {
             setSubscriptionStatus('free')
             setSubscriptionPlan(null)
+            setSubscriptionEndsAt(null)
+            setCustomerPortalUrl(null)
         }
         setLoading(false)
     }
@@ -47,8 +58,20 @@ export function SubscriptionProvider({ children }) {
         return () => subscription.unsubscribe()
     }, [])
 
+    // Pro if active, OR if cancelled but still within the paid period
+    const isPro = subscriptionStatus === 'active' ||
+        (subscriptionEndsAt !== null && new Date(subscriptionEndsAt) > new Date())
+
     return (
-        <SubscriptionContext.Provider value={{ subscriptionStatus, subscriptionPlan, loading, refresh: fetchProfile }}>
+        <SubscriptionContext.Provider value={{
+            subscriptionStatus,
+            subscriptionPlan,
+            subscriptionEndsAt,
+            customerPortalUrl,
+            isPro,
+            loading,
+            refresh: fetchProfile
+        }}>
             {children}
         </SubscriptionContext.Provider>
     )

@@ -82,6 +82,7 @@ Deno.serve(async (req: Request) => {
     const variantId         = String(attributes.variant_id ?? "")
     const endsAt            = attributes.ends_at ?? null
     const subscriptionId    = String(payload?.data?.id ?? "")
+    const customerPortalUrl = attributes.urls?.customer_portal ?? null
 
     console.log(`Event: ${eventName} | User: ${userId} | Variant: ${variantId}`)
 
@@ -114,6 +115,7 @@ Deno.serve(async (req: Request) => {
             subscription_plan:    plan,
             subscription_id:      subscriptionId,
             subscription_ends_at: endsAt,
+            customer_portal_url:  customerPortalUrl,
           })
           .eq("id", userId)
         if (error) console.error(`DB update failed (${eventName}):`, error)
@@ -121,14 +123,16 @@ Deno.serve(async (req: Request) => {
       }
 
       case "subscription_cancelled": {
-        // Cancelled but access continues until ends_at
+        // Keep status "active" — user retains access until ends_at.
+        // subscription_expired will downgrade them once access truly ends.
         const { error } = await supabase
           .from("profiles")
           .update({
-            subscription_status:  "cancelled",
+            subscription_status:  "active",
             subscription_plan:    plan,
             subscription_id:      subscriptionId,
             subscription_ends_at: endsAt,
+            customer_portal_url:  customerPortalUrl,
           })
           .eq("id", userId)
         if (error) console.error("DB update failed (subscription_cancelled):", error)

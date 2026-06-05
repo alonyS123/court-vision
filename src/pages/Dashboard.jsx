@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 import Footer from '../components/Footer'
+import { useSubscription } from '../context/SubscriptionContext'
 
 export default function Dashboard() {
 
@@ -12,6 +13,7 @@ export default function Dashboard() {
     const [visibleCount, setVisibleCount] = useState(5)
 
     const navigate = useNavigate()
+    const { isPro, customerPortalUrl } = useSubscription()
 
     useEffect(() => {
         async function fetchSessions() {
@@ -76,12 +78,32 @@ async function deleteSession(id) {
                 
                 <div className="flex justify-between items-center mt-2">
                 <h1 className="text-3xl font-bold">Your Dashboard</h1>
-                <button 
-                    onClick={handleLogout}
-                    className="px-4 py-2 rounded-lg text-sm text-gray-400 bg-gray-800 border border-gray-700 hover:text-white transition-all"
-                >
-                    Log Out
-                </button>
+                <div className="flex items-center gap-2">
+                    {customerPortalUrl ? (
+                        <a
+                            href={customerPortalUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="px-4 py-2 rounded-lg text-sm font-bold text-gray-400 bg-gray-800 border border-gray-700 hover:border-orange-500 hover:text-white transition-all"
+                        >
+                            Manage Subscription
+                        </a>
+                    ) : !isPro ? (
+                        <button
+                            onClick={() => navigate('/pricing')}
+                            className="px-4 py-2 rounded-lg text-sm font-bold transition-all"
+                            style={{ background: 'rgba(249, 115, 22, 0.1)', color: '#f97316', border: '1px solid rgba(249, 115, 22, 0.3)' }}
+                        >
+                            Upgrade to Pro
+                        </button>
+                    ) : null}
+                    <button
+                        onClick={handleLogout}
+                        className="px-4 py-2 rounded-lg text-sm text-gray-400 bg-gray-800 border border-gray-700 hover:text-white transition-all"
+                    >
+                        Log Out
+                    </button>
+                </div>
             </div>
 
 
